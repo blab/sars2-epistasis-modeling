@@ -3,11 +3,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 
-growth_advantages = pd.read_csv('child_parent_growth_advantages.tsv', sep='\t')
+growth_advantages = pd.read_csv('child-parent-growth-advantages.tsv', sep='\t')
 innovation_ga = pd.read_csv('mlr_innovation_growth_advantages.tsv', sep='\t')
 rows_for_tsv = []
-# Base Node is BA.2 in this case
-BASE_NODE_GA = -0.07345003
+# Base Node is BA.2.1 in this case
+BASE_NODE_GA = 1.0614669
 innovation_variants = innovation_ga['variant']
 ga_variants = growth_advantages['variant']
 
@@ -18,7 +18,8 @@ for variant in ga_variants:
     s2 = growth_advantages.loc[growth_advantages['variant'] == variant]['variant-parent-ratio']
     mutation_ga = s2.item()/BASE_NODE_GA
     division_result = mutation_ga/innovation_num
-    difference_result = mutation_ga - innovation_num
+    # outputing absolute value of difference
+    difference_result = abs(mutation_ga - innovation_num)
     rows_for_tsv.append({'variant': variant, 'division': division_result, 'difference':difference_result})
 
 # compiling total output
