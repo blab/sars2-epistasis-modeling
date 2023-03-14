@@ -42,14 +42,38 @@ div_outliers.drop(columns = 'difference').to_csv('division-outliers.tsv', sep='\
 
 
 # plotting histogram of differences
+new_df = df[['difference', 'variant']]
+subtract_names =new_df.to_dict('records')
+name = list(df['variant'])
 subtract = list(df['difference'])
 quotient = list(df['division'])
-colors=['blue', 'green']
-names=['DIFF_SUB', 'DIFF_DIV']
-plt.hist([subtract, quotient], color=colors, label=names,  density = True, stacked = True)
-
+colors = ['blue']
+names=['DIFF_SUB,DIFF_QUO']
+x = [0] * len(subtract)
+#plt.hist([subtract, quotient], color=colors, label=names,  density = True, stacked = True)
+plt.scatter(subtract,quotient, color=colors, label=names)
+plt.plot(np.unique(subtract), np.poly1d(np.polyfit(subtract, quotient, 1))(np.unique(subtract)))
+for i in range(len(subtract)):
+    plt.annotate(name[i], (subtract[i],quotient[i]))
 # Set the legend and labels
 plt.legend()
-plt.title('Stacked Histogram for Growth Advantage Differences')
+plt.title('Scatter for Mutational_GA by Innovation_GA')
 plt.xlabel('Variant Growth Advantages')
-plt.savefig('ga-histogram.pdf')
+plt.savefig('ga-histogram-both.pdf')
+
+a,b = np.polyfit(subtract, quotient, 1)
+yfit = []
+delta_fit =[]
+
+for i in range(len(subtract)):
+    yfit.append(a*subtract[i] + b)
+    delta_fit.append({'variant': name[i], "delta_y": abs(yfit[i]-subtract[i])})
+
+rows_for_tsv_top_10 = []
+for i in range(len(delta_fit)):
+    row = delta_fit[i]
+    rows_for_tsv_top_10.append({'variant': row['variant'], 'diff from line': row['delta_y']})
+
+df = pd.DataFrame(rows_for_tsv_top_10)
+top_10 = df.nlargest(10, 'diff from line')
+top_10.to_csv('top_10_outliers.tsv', sep='\t')
