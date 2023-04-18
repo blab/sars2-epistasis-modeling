@@ -3,14 +3,16 @@ from augur.utils import json_to_tree
 import pandas as pd
 
 # starting node
-END_NODE = "NODE_0000260"
+#END_NODE = "NODE_0000260"
+END_NODE = 'BA.2'
 
 #grab lineage of tip node
 def find_lineage(tree, child_node, rows_for_tsv):
     gene_muts = {}
     node_path = tree.get_path(child_node)
     i = len(node_path) - 1
-    while (i >= 0 and node_path[i].name != END_NODE):
+    #while (i >= 0 and node_path[i].name != END_NODE):
+    while (i >= 0 and END_NODE not in node_path[i].name):
         i = i - 1
         gene_muts = format_string(node_path[i].branch_attrs['mutations'],'nuc', gene_muts)
     #append variant name, mutation, and region to list
@@ -44,4 +46,4 @@ if __name__ == '__main__':
     #make pandas dataframe from list of dicts
     df = pd.DataFrame(rows_for_tsv)
     #save dataframe as tsv
-    df.to_csv('new_new_accumulated_mutations_output.tsv', sep='\t')
+    df.to_csv('new_accumulated_mutations_output.tsv', sep='\t')
